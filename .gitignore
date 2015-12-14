@@ -2,5 +2,4 @@
 .project
 .pydevproject
 .settings/
-
-
+jieba/
