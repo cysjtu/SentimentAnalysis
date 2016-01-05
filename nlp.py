@@ -17,6 +17,7 @@ from sklearn.metrics import accuracy_score
 
 import jieba
 import jieba.posseg as pseg
+from random import randrange
 
 from xml.dom import minidom
 
@@ -131,10 +132,15 @@ def load_file():
     
 def learn_model(data,target):
     # preparing data for split validation. 60% training, 40% test
-    data_train,data_test,target_train,target_test = cross_validation.train_test_split(data,target,test_size=0.3,random_state=43)
+    state=randrange(1,23432)+123
+    print "statue 6857"
+    print state
+
+    data_train,data_test,target_train,target_test = cross_validation.train_test_split(data,target,test_size=0.2,random_state=state)
     classifier = BernoulliNB().fit(data_train,target_train)
     predicted = classifier.predict(data_test)
     evaluate_model(target_test,predicted)
+
 
 # read more about model evaluation metrics here
 # http://scikit-learn.org/stable/modules/model_evaluation.html
@@ -144,10 +150,14 @@ def evaluate_model(target_true,target_predicted):
 
 def main():
     data,target = load_file()
+    state=randrange(1,23432)+123
+    print "statue 6857"
+    print state
+    raw_input("sss")
+    data_train,data_test,target_train,target_test = cross_validation.train_test_split(data,target,test_size=0.2,random_state=state)
+    predicted=test.allJudge(data_test,target_test)
     
-    predicted=test.allJudge(data)
-    
-    evaluate_model(target,predicted)
+    evaluate_model(target_test,predicted)
     
     
     #tf_idf = preprocess()
@@ -155,7 +165,7 @@ def main():
     #learn_model(tf_idf,target)
 
 
-main()
+#main()
 
 
 

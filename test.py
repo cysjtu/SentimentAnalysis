@@ -35,9 +35,37 @@ cur=conn.cursor()
 #str="看了这本书，总体感觉老外带孩子比中国人要粗些。其实，本来就不用太过细致了，人家那样照样能把孩子带好，不能把孩子放在保险箱里养。这书挺好的，可以看看"
 #cuts=pseg.cut(str)
 
+InverseWord_dict={}
+stopWord_dict={}
+sentiment_dict={}
+level_dict={}
 
+def build_sentiment_dict():
+    global sentiment_dict
     
+    query2="select * from sentiment"
+    cur.execute(query2)
+    data=cur.fetchall()
+    
+    for s in data:
+        sentiment_dict[s[1]]=s[2]
+        
+        
+    print len(sentiment_dict.keys())
+
+
+
 def getPolar(word):
+    
+    global sentiment_dict
+    
+    if sentiment_dict.has_key(word):
+        return sentiment_dict[word]
+    else:
+        return -1
+    
+    
+    """
     query2="select polar from sentiment where word = %s"
     
     cur.execute(query2,(word))
@@ -49,10 +77,31 @@ def getPolar(word):
         return polar[0]
     else :
         return -1
+    """
     
     
+def build_level_dict():
+    global level_dict
     
+    query2="select * from level"
+    cur.execute(query2)
+    data=cur.fetchall()
+    
+    for s in data:
+        level_dict[s[1]]=(s[2],s[3])
+        
+        
+    print len(level_dict.keys())
+
 def getLevel(word):
+    global level_dict
+    
+    if level_dict.has_key(word):
+        return level_dict[word]
+    else:
+        return (-1,-1000.0)
+    
+    """
     query2="select * from level where word = %s"
     
     cur.execute(query2,(word))
@@ -64,6 +113,8 @@ def getLevel(word):
         return (res[2],float(res[3]) )
     else :
         return (-1,-1000.0)
+        
+    """
 
 def getSimilar(word):
     
@@ -93,10 +144,34 @@ def getSimilar(word):
     return data
 
 
+def build_InverseWord_dict():
+    global InverseWord_dict
+    
+    query2="select * from inverse"
+    cur.execute(query2)
+    data=cur.fetchall()
+    
+    for s in data:
+        InverseWord_dict[s[0]]=1
+        
+        
+    print len(InverseWord_dict.keys())
+
+
+
 
 
 #判断一个词语是不是否定词
 def isInverseWord(word):
+    global InverseWord_dict
+    
+    if InverseWord_dict.has_key(word):
+        return 1
+    else:
+        return -1
+    
+    """
+    
     query2="select * from inverse where word = %s"
     
     cur.execute(query2,(word))
@@ -108,10 +183,35 @@ def isInverseWord(word):
         return 1
     else :
         return -1
+        
+    """
+    
+    
+
+def build_stopWord_dict():
+    global stopWord_dict
+    
+    query2="select * from stop"
+    cur.execute(query2)
+    data=cur.fetchall()
+    
+    for s in data:
+        stopWord_dict[s[0]]=1
+        
+        
+    print len(stopWord_dict.keys())
 
 
 
 def isstopWord(word):
+    global stopWord_dict
+    if stopWord_dict.has_key(word):
+        return 1
+    else:
+        return -1
+    
+    
+    """
     query2="select * from stop where word = %s"
     
     cur.execute(query2,(word))
@@ -124,7 +224,8 @@ def isstopWord(word):
     else :
         return -1
 
-
+    """
+    
 
 
 
@@ -578,37 +679,49 @@ def calculate_score(data):
 
 
     
-def allJudge(data):
+def allJudge(data_train,target_train):
 
     ret=[]
     cnt=0
-    for text in data:
+    for i in range(len(data_train)):
         print ("%d================================================="%cnt)
+        text=data_train[i]
+        label=target_train[i]
         
         arr=process_text(text)
         result=calculate_score(arr)
         
         if result ==1:
-            if cnt >4999:
-                print (">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>error----------%d"%cnt) 
+            if label == "negative" :
+                print (">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>error---suppose negative but positive-------%d"%cnt) 
             ret.append("positive")
         else:
-            if cnt <=4999:
-                print (">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>error----------%d"%cnt) 
+            if label == "positive" :
+                print (">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>error---suppose positive but negative-------%d"%cnt) 
             ret.append("negative")
             
         cnt+=1
     return ret
-
+"""
 #@@@@@@@@@@@@@@@@@@
-#load_similar()
+load_similar()
 load_level()
 load_inverse()
 load_sentiment()
 load_stop()
 #@@@@@@@@@@@@@@@@@@@@
+"""
+print "build_sentiment_dict"
+build_sentiment_dict()
 
+print "build_level_dict"
+build_level_dict()
 
+print "build_InverseWord_dict"
+build_InverseWord_dict()
+
+print "build_stopWord_dict"
+build_stopWord_dict()
 
 
 
